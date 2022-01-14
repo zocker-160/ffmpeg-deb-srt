@@ -35,7 +35,7 @@ jobs:
         run: |
           apt-get update
           export UPSTREAM_VERSION="$(apt-cache --no-all-versions show ffmpeg | awk '/^Version/ { print $2 }')"
-          apt-get -y install --no-install-recommends ca-certificates apt-transport-https gnupg1 gpgv1
+          apt-get install -y --no-install-recommends ca-certificates apt-transport-https gnupg1 gpgv1
           apt-get update
           export SRT_VERSION="$(apt-cache madison ffmpeg | awk '{ if ($5 == ENVIRON["REPO"]) { print $3 } }')"
           dpkg --compare-versions "$SRT_VERSION" gt "$UPSTREAM_VERSION"
@@ -44,7 +44,7 @@ jobs:
         if: steps.version_check.outcome == 'failure'
         run: |
           apt-get update
-          apt-get install build-essential devscripts equivs lintian gnupg1 gpgv1 lsb-release curl ca-certificates
+          apt-get install -y build-essential devscripts equivs lintian gnupg1 gpgv1 lsb-release curl ca-certificates
 
       - name: Get srt source
         if: steps.version_check.outcome == 'failure' && matrix.codename == 'buster'
