@@ -83,7 +83,7 @@ jobs:
       - name: Get ffmpeg build dependencies
         if: steps.version_check.outcome == 'failure'
         run: |
-          mk-build-deps -y -i -r ffmpeg-*/debian/control
+          mk-build-deps --install -r ffmpeg-*/debian/control --tool "apt-get --no-install-recommends -y"
       - name: Build ffmpeg
         if: steps.version_check.outcome == 'failure'
         run: |
