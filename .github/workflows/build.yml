@@ -92,9 +92,8 @@ jobs:
       
       - name: move all needed files
         run: |
-          cd
           mkdir out
-          mv *.deb out
+          mv ./*.deb out
 
       - name: Upload artifacts
         if: steps.version_check.outcome == 'failure'
