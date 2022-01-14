@@ -89,9 +89,16 @@ jobs:
         run: |
           cd ffmpeg-*/
           debuild -us -uc -b
+      
+      - name: move all needed files
+        run: |
+          cd
+          mkdir out
+          mv *.deb out
+
       - name: Upload artifacts
         if: steps.version_check.outcome == 'failure'
         uses: actions/upload-artifact@v1
         with:
           name: '${{ matrix.codename }}'
-          path: '.'
+          path: 'out'
