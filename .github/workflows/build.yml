@@ -43,6 +43,7 @@ jobs:
       - name: Install build environment
         if: steps.version_check.outcome == 'failure'
         run: |
+          sed -i '/deb-src/s/^# //' /etc/apt/sources.list
           apt-get update
           apt-get install -y build-essential devscripts equivs lintian gnupg1 gpgv1 lsb-release curl ca-certificates
 
