@@ -26,7 +26,6 @@ jobs:
       DEBIAN_FRONTEND: noninteractive
       DEBIAN_PRIORITY: critical
       DEBCONF_NOWARNINGS: yes
-      REPO: 'https://ffmpeg-deb-srt.fra1.digitaloceanspaces.com/${{ matrix.codename }}'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -107,30 +106,9 @@ jobs:
         run: |
           cd ffmpeg-*/
           debuild -us -uc -b
-      - name: Create repository
-        if: steps.version_check.outcome == 'failure'
-        env:
-          SIGNING_KEY: '${{ secrets.SIGNING_KEY }}'
-          GNUPGHOME: ' ${{ github.workspace }}/gnupg'
-        run: |
-          mkdir -m 0700 -p "$GNUPGHOME"
-          gpg1 --batch --no-tty --import pubkey.gpg
-          echo "$SIGNING_KEY" | gpg1 --batch --no-tty --import
-          gpg1 --batch --no-tty --list-keys --with-colons | awk -F : '/^uid/ { print "default-key " $8 }' > $GNUPGHOME/gpg.conf
-          aptly -gpg-provider=gpg1 repo create -distribution=$(lsb_release -c -s) default
-          aptly -gpg-provider=gpg1 repo add default .
-          aptly -gpg-provider=gpg1 publish repo default
-          rm -rf "$GNUPGHOME"
       - name: Upload artifacts
         if: steps.version_check.outcome == 'failure'
         uses: actions/upload-artifact@v1
         with:
           name: '${{ matrix.codename }}'
           path: 'aptly/public'
-      - name: Publish repository
-        if: steps.version_check.outcome == 'failure'
-        env:
-          MC_HOST_repo: 'https://${{ secrets.AWS_ACCESS_KEY_ID }}:${{ secrets.AWS_SECRET_ACCESS_KEY }}@${{ secrets.S3_ENDPOINT }}'
-        run: |
-          mc rm --recursive --force repo/${{ secrets.S3_BUCKET }}/${{ matrix.codename }}
-          mc cp --recursive aptly/public/ repo/${{ secrets.S3_BUCKET }}/${{ matrix.codename }}
